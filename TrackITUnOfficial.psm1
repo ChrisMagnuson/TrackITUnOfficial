@@ -1,4 +1,7 @@
-﻿function get-TrackITWorkOrders {
+﻿#Requires -Modules InvokeSQL
+#Requires -Version 4
+
+function get-TrackITWorkOrders {
 $QueryToGetWorkOrders = @"
 Select `*
   from [TRACKIT9_DATA].[dbo].[vTASKS_BROWSE]
@@ -27,4 +30,18 @@ Select `*
         }
     }#>
     $WorkOrdersArray
+}
+
+function Get-TrackITWorkOrderDetails {
+    param(
+        [parameter(Mandatory = $true)]$WorkOrderNumber
+    )
+    $QueryToGetWorkOrders = @"
+Select `*
+  from [TRACKIT9_DATA].[dbo].[vTASKS_BROWSE]
+  where WO_NUM = $WorkOrderNumber
+"@
+
+    $WorkOrder = Invoke-SQL -dataSource sql -database TRACKIT9_DATA -sqlCommand $QueryToGetWorkOrders
+    $WorkOrder
 }
