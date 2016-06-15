@@ -2,34 +2,62 @@
 #Requires -Version 4
 
 function get-TrackITWorkOrders {
-$QueryToGetWorkOrders = @"
+    $QueryToGetWorkOrders = @"
 Select `*
   from [TRACKIT9_DATA].[dbo].[vTASKS_BROWSE]
   where WorkOrderStatusName != 'Closed'
 "@
 
     $WorkOrders = Invoke-SQL -dataSource sql -database TRACKIT9_DATA -sqlCommand $QueryToGetWorkOrders
-
     $WorkOrdersArray = @()
-    #$WorkOrders | % { $WorkOrdersArray += $_.data }
     $WorkOrdersArray = $WorkOrders.DataSet.Tables[0] | % { $_ }
+    $WorkOrdersArray
+}
 
-    <#foreach ($WorkOrder in $WorkOrdersArray ) {
 
-$QueryToGetWorkOrderNotes = @"
+function get-TrackITWorkOrder {
+    param(
+        [switch]$IncludeNotes
+    )
+    $QueryToGetWorkOrders = @"
 Select `*
-  from [TRACKIT9_DATA].[dbo].[TaskNote]
-  where WOID = $WorkOrder.woid
+  from [TRACKIT9_DATA].[dbo].[vTASKS_BROWSE]
+  where WorkOrderStatusName != 'Closed'
 "@
 
-        $WorkOrder | Add-Member -MemberType NoteProperty -Name Notes -Value {
-            $WorkOrderNotes = Invoke-SQL -dataSource sql -database TRAC$KIT9_DATA -sqlCommand $QueryToGetWorkOrderNotes
-            
-            $WorkOrderNotes.DataSet.Tables[0] | % { $_ }
+    $WorkOrders = Invoke-SQL -dataSource sql -database TRACKIT9_DATA -sqlCommand $QueryToGetWorkOrders
+    $WorkOrdersArray = @()
+    $WorkOrdersArray = $WorkOrders.DataSet.Tables[0] | % { $_ }
 
+    if($IncludeNotes) {
+        foreach ($WorkOrder in $WorkOrdersArray ) {
+            $WorkOrder | Get-TrackItWorkOrderNote
         }
-    }#>
-    $WorkOrdersArray
+    }
+
+    $WorkOrdersArray | ConvertFrom-DataRow
+}
+
+function Get-TrackItWorkOrderNote {
+    param(
+        [Parameter(Mandatory=$True,ValueFromPipeline=$True)]$WorkOrder
+    )
+    process{
+        $WorkOrder# | % {
+        
+            $QueryToGetWorkOrderNotes = @"
+Select `*
+  from [TRACKIT9_DATA].[dbo].[TaskNote]
+  where WOID = $_.woid
+"@
+
+            $WorkOrderNotes = Invoke-SQL -dataSource sql -database TRACKIT9_DATA -sqlCommand $QueryToGetWorkOrderNotes    
+
+            $_ | Add-Member -MemberType NoteProperty -Name Notes -Value {
+                $WorkOrderNotes.DataSet.Tables[0] | % { $_ }
+            }
+        #}
+    }
 }
 
 function Get-TrackITWorkOrderDetails {
