@@ -35,7 +35,21 @@ Select `*
         }
     }
 
-    $WorkOrdersArray | ConvertFrom-DataRow
+    $WorkOrdersArray | ConvertFrom-DataRow | Add-TervisTrackITWorkOrderCustomProperties
+}
+
+Function Add-TervisTrackITWorkOrderCustomProperties {
+    param (
+        [Parameter(Mandatory,ValueFromPipeline)]$WorkOrder
+    )
+    process {
+        $WorkOrder | 
+        Add-Member -MemberType ScriptProperty -Name KanbanizeBoard -Value { $This.LOOKUP1 } -PassThru |
+        Add-Member -MemberType ScriptProperty -Name KanbanizeColumn -Value { $This.LOOKUP2 } -PassThru |
+        Add-Member -MemberType ScriptProperty -Name KanbanizeLane -Value { $This.TaskLookup3 } -PassThru |
+        Add-Member -MemberType ScriptProperty -Name KanbanizeProject -Value { $This.TaskLookup4 } -PassThru |
+        Add-Member -MemberType ScriptProperty -Name KanbanizeID -Value { $This.WO_TEXT2 } -PassThru
+    }
 }
 
 function Get-TrackItWorkOrderNote {
