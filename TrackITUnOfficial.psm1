@@ -15,7 +15,7 @@ Select `*
 }
 
 
-function get-TrackITWorkOrder {
+function get-TervisTrackITWorkOrder {
     param(
         [switch]$IncludeNotes
     )
