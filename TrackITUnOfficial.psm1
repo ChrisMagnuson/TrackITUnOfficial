@@ -1,7 +1,7 @@
 ﻿#Requires -Modules InvokeSQL
 #Requires -Version 4
 
-function get-TrackITWorkOrders {
+function get-TervisTrackITWorkOrders {
     $QueryToGetWorkOrders = @"
 Select `*
   from [TRACKIT9_DATA].[dbo].[vTASKS_BROWSE]
