@@ -1,7 +1,7 @@
 ﻿#Requires -Modules InvokeSQL
 #Requires -Version 4
 
-function get-TervisTrackITWorkOrders {
+function Get-TervisTrackITUnOfficialWorkOrders {
     $QueryToGetWorkOrders = @"
 Select `*
   from [TRACKIT9_DATA].[dbo].[vTASKS_BROWSE]
@@ -15,7 +15,7 @@ Select `*
 }
 
 
-function get-TervisTrackITWorkOrder {
+function Get-TervisTrackITUnOfficialWorkOrder {
     param(
         [switch]$IncludeNotes
     )
@@ -31,14 +31,14 @@ Select `*
 
     if($IncludeNotes) {
         foreach ($WorkOrder in $WorkOrdersArray ) {
-            $WorkOrder | Get-TrackItWorkOrderNote
+            $WorkOrder | Get-TrackItUnOfficialWorkOrderNote
         }
     }
 
-    $WorkOrdersArray | ConvertFrom-DataRow | Add-TervisTrackITWorkOrderCustomProperties
+    $WorkOrdersArray | ConvertFrom-DataRow | Add-TervisTrackITUnOfficialWorkOrderCustomProperties
 }
 
-Function Add-TervisTrackITWorkOrderCustomProperties {
+Function Add-TervisTrackITUnOfficialWorkOrderCustomProperties {
     param (
         [Parameter(Mandatory,ValueFromPipeline)]$WorkOrder
     )
@@ -52,7 +52,7 @@ Function Add-TervisTrackITWorkOrderCustomProperties {
     }
 }
 
-function Get-TrackItWorkOrderNote {
+function Get-TrackItUnOfficialWorkOrderNote {
     param(
         [Parameter(Mandatory=$True,ValueFromPipeline=$True)]$WorkOrder
     )
