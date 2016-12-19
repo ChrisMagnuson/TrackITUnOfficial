@@ -1,20 +1,6 @@
 ﻿#Requires -Modules InvokeSQL
 #Requires -Version 4
 
-function Get-TervisTrackITUnOfficialWorkOrders {
-    $QueryToGetWorkOrders = @"
-Select `*
-  from [TRACKIT9_DATA].[dbo].[vTASKS_BROWSE]
-  where WorkOrderStatusName != 'Closed'
-"@
-
-    $WorkOrders = Invoke-SQL -dataSource sql -database TRACKIT9_DATA -sqlCommand $QueryToGetWorkOrders
-    $WorkOrdersArray = @()
-    $WorkOrdersArray = $WorkOrders.DataSet.Tables[0] | % { $_ }
-    $WorkOrdersArray
-}
-
-
 function Get-TervisTrackITUnOfficialWorkOrder {
     param(
         [switch]$IncludeNotes
