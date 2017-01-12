@@ -7,8 +7,8 @@ function Get-TervisTrackITUnOfficialWorkOrder {
     )
     $QueryToGetWorkOrders = @"
 Select `*
-  from [TRACKIT9_DATA].[dbo].[vTASKS_BROWSE]
-  where WorkOrderStatusName != 'Closed'
+from [TRACKIT9_DATA].[dbo].[vTASKS_BROWSE]
+where Status != 'Completed'
 "@
 
     $WorkOrders = Invoke-SQL -dataSource sql -database TRACKIT9_DATA -sqlCommand $QueryToGetWorkOrders
@@ -22,6 +22,16 @@ Select `*
     }
 
     $WorkOrdersArray | ConvertFrom-DataRow | Add-TervisTrackITUnOfficialWorkOrderCustomProperties
+}
+
+Function Get-UnassignedTrackITs {
+    $QueryToGetUnassignedWorkOrders = @"
+Select Wo_num, task, request_fullname, request_email
+from [TRACKIT9_DATA].[dbo].[vTASKS_BROWSE]
+Where RESPONS IS Null AND
+Status != 'Completed'
+"@
+    Invoke-SQL -dataSource sql -database TRACKIT9_DATA -sqlCommand $QueryToGetUnassignedWorkOrders
 }
 
 Function Add-TervisTrackITUnOfficialWorkOrderCustomProperties {
