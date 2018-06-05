@@ -11,9 +11,7 @@ from [TRACKIT9_DATA].[dbo].[vTASKS_BROWSE]
 where Status != 'Completed'
 "@
 
-    $WorkOrders = Invoke-SQL -dataSource sql -database TRACKIT9_DATA -sqlCommand $QueryToGetWorkOrders
-    $WorkOrdersArray = @()
-    $WorkOrdersArray = $WorkOrders.DataSet.Tables[0] | % { $_ }
+    $WorkOrders = Invoke-MSSQL -Server sql -Database TRACKIT9_DATA -SQLCommand $QueryToGetWorkOrders -ConvertFromDataRow
 
     if($IncludeNotes) {
         foreach ($WorkOrder in $WorkOrdersArray ) {
@@ -21,7 +19,7 @@ where Status != 'Completed'
         }
     }
 
-    $WorkOrdersArray | ConvertFrom-DataRow | Add-TervisTrackITUnOfficialWorkOrderCustomProperties
+    $WorkOrders | Add-TervisTrackITUnOfficialWorkOrderCustomProperties
 }
 
 Function Get-UnassignedTrackITs {
@@ -50,23 +48,19 @@ Function Add-TervisTrackITUnOfficialWorkOrderCustomProperties {
 
 function Get-TrackItUnOfficialWorkOrderNote {
     param(
-        [Parameter(Mandatory=$True,ValueFromPipeline=$True)]$WorkOrder
+        [Parameter(Mandatory,ValueFromPipeline)]$WorkOrder
     )
     process{
-        $WorkOrder# | % {
-        
-            $QueryToGetWorkOrderNotes = @"
+        $QueryToGetWorkOrderNotes = @"
 Select `*
   from [TRACKIT9_DATA].[dbo].[TaskNote]
-  where WOID = $_.woid
+  where WOID = $($WorkOrder.woid)
 "@
 
-            $WorkOrderNotes = Invoke-SQL -dataSource sql -database TRACKIT9_DATA -sqlCommand $QueryToGetWorkOrderNotes    
-
-            $_ | Add-Member -MemberType NoteProperty -Name Notes -Value {
-                $WorkOrderNotes.DataSet.Tables[0] | % { $_ }
-            }
-        #}
+        $WorkOrderNotes = Invoke-MSSQL -Server sql -Database TRACKIT9_DATA -SQLCommand $QueryToGetWorkOrderNotes -ConvertFromDataRow
+        $WorkOrder | Add-Member -MemberType NoteProperty -Name Notes -Value {
+            $WorkOrderNotes
+        }
     }
 }
 
