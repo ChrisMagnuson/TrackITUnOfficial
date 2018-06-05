@@ -14,9 +14,7 @@ where Status != 'Completed'
     $WorkOrders = Invoke-MSSQL -Server sql -Database TRACKIT9_DATA -SQLCommand $QueryToGetWorkOrders -ConvertFromDataRow
 
     if($IncludeNotes) {
-        foreach ($WorkOrder in $WorkOrdersArray ) {
-            $WorkOrder | Get-TrackItUnOfficialWorkOrderNote
-        }
+        $WorkOrders | Get-TrackItUnOfficialWorkOrderNote
     }
 
     $WorkOrders | Add-TervisTrackITUnOfficialWorkOrderCustomProperties
